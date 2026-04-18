@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from .core import precompute_freqs_cis, apply_rotary_emb
+from .dynamic_ntk import precompute_freqs_cis_dynamic_ntk
 
 class RoPEAttention(nn.Module):
     """
@@ -15,6 +16,7 @@ class RoPEAttention(nn.Module):
         self.d_model = d_model
         self.n_heads = n_heads
         self.head_dim = d_model // n_heads
+        self.max_train_len = max_train_len
 
         # 1. The standard Linear Projections
         self.wq = nn.Linear(d_model, d_model, bias=False)
@@ -33,7 +35,11 @@ class RoPEAttention(nn.Module):
         v = self.wv(x).view(bsz, seq_len, self.n_heads, self.head_dim)
 
         # 2. Precompute the Vanilla RoPE frequencies for the current sequence length
-        freqs_cis = precompute_freqs_cis(dim=self.head_dim, seq_len=seq_len, theta=10000.0)
+        freqs_cis = precompute_freqs_cis_dynamic_ntk(
+            dim=self.head_dim, 
+            seq_len=seq_len, 
+            max_train_len=self.max_train_len # e.g., 512
+        )
 
         # 3. Inject Position: Rotate Q and K in the complex plane
         q, k = apply_rotary_emb(q, k, freqs_cis)
