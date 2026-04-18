@@ -8,7 +8,7 @@ class RoPEAttention(nn.Module):
     """
     A custom Causal Self-Attention layer implementing Vanilla RoPE.
     """
-    def __init__(self, d_model: int, n_heads: int):
+    def __init__(self, d_model: int, n_heads: int, max_train_len: int):
         super().__init__()
         # Ensure dimensions divide cleanly
         assert d_model % n_heads == 0, "d_model must be divisible by n_heads"
