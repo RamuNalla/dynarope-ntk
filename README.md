@@ -14,7 +14,9 @@ Vanilla Rotary Positional Embeddings (RoPE) map sequence positions to rotations 
 
 ### The Vanilla Math
 Every token vector is split into 2D pairs, and each pair ($i$) is rotated by an angle based on its absolute position ($m$) and a decaying base frequency ($f_i$):
+
 $$f_i = \theta^{-\frac{2i}{d}}$$
+
 *(Where $d$ is the embedding dimension and $\theta$ is the base, standardly 10,000).*
 
 ### The "Crash"
@@ -31,7 +33,9 @@ Early attempts to fix this used **Linear Interpolation**, which simply divided a
 **DynaRoPE uses NTK Scaling**, which acts as a smart equalizer. Instead of dividing positions, it manipulates the base frequency ($\theta$) using a non-linear exponent.
 
 ### The NTK Formula
+
 $$\theta' = \theta \cdot \left(\frac{L'}{L}\right)^{\frac{d}{d-2}}$$
+
 *(Where $L'$ is your target length and $L$ is your training limit).*
 
 ### Why The Math Works
